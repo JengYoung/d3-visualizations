@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+
+  <svg id="bargraph" width="600" height="150"></svg>
+  <button class="" onclick="sortData()">Ascend!</button>
+
+<script>
+    const homelessData = [
+      { state: 'California', population: 134278 },
+      { state: 'Florida', population: 32190 },
+      { state: 'Washington', population: 21112 },
+      { state: 'Texas', population: 134278 },
+      { state: 'NotJengYoungWorld', population: 199999 },
+      { state: 'JengYoungWorld', population: 0 },
+    ]
+
+    const barGroup = d3.select('#bargraph').append('g');
+
+    barGroup.selectAll('rect')
+      .data(homelessData)
+      .enter().append('rect')
+        .attr('height', 19)
+        .attr('width', d => d.population / 500)
+        .attr('x', 160)
+        .attr('y', (d, i) => i * 20)
+        .attr('fill', 'pink');
+
+    barGroup.selectAll('text')
+      .data(homelessData)
+      .enter().append('text')
+      .text(d => d.state)
+      .attr('x', 150)
+      .attr('y', (d, i) => i * 20 + 17)
+      .attr('text-anchor', 'end');
+
+  </script>
+  <script>
+    /*
+      # selection.sort(compare callback)
+      - `compare callback`을 통해 selection의 위치를 변경한다.
+      - sort 메소드는 바인딩된 데이터를 기반으로 `selection` 요소를 정렬한다.
+      - compare callback을 수행한 다음, 새로 정렬된 요소를 DOM에 재삽입한다.
+      - compare callback은 직접 정의하거나 D3에서 제공하는 비교자들을 사용.
+        (예시: d3.ascending, d3.descending)
+      # compare callback: function(a, b)
+      - 사용 방법은 기존 `sort` 메소드 `callback`과 동일하다.
+    */
+  function sortData() {
+    const $button = document.querySelector('button');
+    let isAscend = $button.classList.contains('ascend');
+    if (!isAscend) {
+      d3.select('#bargraph')
+      .selectAll('rect')
+      .sort((a, b) => d3.ascending(a.population, b.population))
+      .attr('y', (d, i) => i * 20);
+  
+      d3.select('#bargraph')
+        .selectAll('text')
+        .sort((a, b) => d3.ascending(a.population, b.population))
+        .attr('y', (d, i) => i * 20 + 17);
+    } else {
+      d3.select('#bargraph')
+        .selectAll('rect')
+        .sort((a, b) => d3.descending(a.population, b.population))
+        .attr('y', (d, i) => i * 20);
+  
+      d3.select('#bargraph')
+        .selectAll('text')
+        .sort((a, b) => d3.descending(a.population, b.population))
+        .attr('y', (d, i) => i * 20 + 17);
+    }
+    $button.classList.toggle('ascend');
+    isAscend = !isAscend;
+    $button.textContent = isAscend ? 'Descend!' : 'Ascend!'
+  }
+  </script>
+</body>
+</html>
