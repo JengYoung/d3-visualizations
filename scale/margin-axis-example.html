@@ -88,11 +88,17 @@
       .domain([0, d3.max(data, d => d.value)])
       .range([0, width]);
 
+    const xAxis = d3.axisTop(x)
+      .ticks(4)
+      .tickFormat((d, i) => `${!!d ? Math.floor(d / 10000) : d}만 명`);
+
     const y = d3.scaleBand()
       .domain(nameList)
       .range([0, height])
       .paddingInner(0.2);
     console.log(y.range())
+
+    const yAxis = d3.axisLeft(y);
 
     const body = d3.select('body');
     body.append('h2')
@@ -132,39 +138,16 @@
       .attr('height', barHeight)
       .attr('width', d => x(d.value));
 
-    const barLabel = svgGroup.append('g')
-      .attr('class', 'bar-label');
-
-    barLabel.selectAll('text')
-      .data(data)
-      .join('text')
-      .attr('x', '140')
-      .attr('y', (d, idx) => barHeight * (idx + 2) + barGap * (idx + 1))
-      .text(d => d.name);
-
     const tickHeight = -10;
     const tickGap = -5;
     const axisData = [0, 5500000, 11000000, 16500000];
-    const xAxis = svgGroup.append('g')
-      .attr('stroke', 'black');
-    
-    const xScale = svgGroup.append('g')
-      .attr('class', 'axis-label')
 
-    xAxis.selectAll('line')
-      .data(axisData)
-      .join('line')
-      .attr('x1', (d, idx) => x(d))
-      .attr('y1', '0')
-      .attr('x2', (d, idx) => x(d))
-      .attr('y2', tickHeight)
-
-    xScale.selectAll('text')
-      .data(axisData)
-      .join('text')
-      .attr('x', (d, idx) => x(d))
-      .attr('y', tickGap + tickHeight)
-      .text((d, idx) => `${!!d ? Math.floor(d / 10000) : d}만명`)
+    svgGroup.append('g')
+      .call(xAxis)
+      .attr('class', 'x-axis');
+    svgGroup.append('g')
+      .call(yAxis)
+      .attr('class', 'y-axis');
   </script>
 </body>
 </html>
