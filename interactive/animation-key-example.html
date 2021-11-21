@@ -54,6 +54,13 @@
       font-weight: 700;
       color: royalblue;
     }
+    .play-button {
+      margin-left: 10px;
+      margin-bottom: 15px;
+      font-style: italic;
+      cursor: pointer;
+      color: gray;
+    }
   </style>
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script>
@@ -92,6 +99,10 @@
       const body = d3.select('body');
       body.append('h2')
         .text(getTitle(year));
+
+      const animationButton = body.append('div')
+        .attr('class', 'play-button')
+        .text('🎞 Watch All Data!');
 
       const buttons = body.append('div')
         .attr('class', 'buttons-container')
@@ -150,13 +161,32 @@
         param1: 해당 데이터 포인트
         param2: 해당 요소의 값
       */
-      buttons.on('click', function (el, d) {
+      let playInterval;
+      buttons.on('click', (el, d) => {
+        clearInterval(playInterval);
+        update(d)
+      });
+
+      animationButton.on('click', (el, d) => {
+        let i = 0;
+        playInterval = setInterval(() => {
+          update(years[i]);
+          i += 1;
+
+          if (i > years.length - 1) {
+            clearInterval(playInterval);
+          }
+        }, 1500);
+      })
+
+      function update(nextYear) {
         d3.select('.selected')
           .classed('selected', false);
-        d3.select(this)
+
+        buttons.filter(d => d === nextYear)
           .classed('selected', true);
         
-        year = d;
+        year = nextYear;
         selectedData = data.filter(el => el.year === year);
 
         y.domain(selectedData.map(d => d.name));
@@ -174,7 +204,7 @@
           
         body.selectAll('h2')
           .text(getTitle(year));
-      });
+      }
     };
     renderChart();
   </script>
