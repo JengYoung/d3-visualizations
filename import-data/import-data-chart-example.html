@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 13px;
+    }
+    svg {
+      width: 600px;
+      height: 500px;
+    }
+    .top-label {
+      font-size: 13px;
+      font-style: italic;
+      text-transform: uppercase;
+      float: left;
+    }
+    .movie-label {
+      text-align: right;
+      font-weight: bold;
+      width: 145px;
+      padding-right: 10px;
+    }
+    .clearfix {
+      clear: both;
+    }
+    .bar {
+      fill: darkslateblue;
+    }
+    .bar-label {
+      text-anchor: end;
+    }
+    .axis-label {
+      text-anchor: middle;
+    }
+  </style>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script>
+    const renderChart = async () => {
+      const data = await d3.csv('../dataset/movie.csv');
+      consol
+      data.forEach(d => {
+        d.value = parseInt(d.value);
+        return d;
+      })
+      console.log(data)
+
+      const nameList = data.map(d => d.name);
+      const valueList = data.map(d => d.value);
+      // const width = 400;
+      // const scaleFactor = width / d3.max(valueList);
+      // const scaleText = `scale(${scaleFactor}, 1)`;
+
+      const margin = { top: 30, right: 50, bottm: 0, left: 150 };
+      const width = 400;
+      const height = 170;
+
+      const x = d3.scaleLinear()
+        .domain([0, d3.max(data, d => d.value)])
+        .range([0, width]);
+
+      const xAxis = d3.axisTop(x)
+        .ticks(4)
+        .tickFormat((d, i) => `${!!d ? Math.floor(d / 10000) : d}만 명`);
+
+      const y = d3.scaleBand()
+        .domain(nameList)
+        .range([0, height])
+        .paddingInner(0.2);
+
+      const yAxis = d3.axisLeft(y);
+
+      const body = d3.select('body');
+      body.append('h2')
+        .text('2019년 1000만 관객을 기록한 영화 관객수 TOP7')
+      
+      body.append('div')
+        .attr('class', 'top-label movie-label')
+        .append('p')
+        .text('영화');
+
+      body.append('div')
+        .attr('class', 'top-label')
+        .append('p')
+        .text('관객수')
+      body.append('div')
+        .attr('class', 'clearfix');
+      
+      // const svg = body.append('svg');
+      const svgGroup = body.append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g') // append로 추가된 요소가 반환
+        .attr('transform', `translate(${margin.left}, ${margin.top})`);
+
+      const barGroup = svgGroup.append('g')
+        .attr('class', 'bar');
+      
+      const barHeight = 20;
+      const barGap = 5;
+      const barSpacing = barHeight + barGap;
+
+      barGroup.selectAll('rect')
+        .data(data)
+        .join('rect')
+        .attr('x', '0')
+        .attr('y', (d, idx) => y(d.name))
+        .attr('height', barHeight)
+        .attr('width', d => x(d.value));
+
+      const tickHeight = -10;
+      const tickGap = -5;
+      const axisData = [0, 5500000, 11000000, 16500000];
+
+      svgGroup.append('g')
+        .call(xAxis)
+        .attr('class', 'x-axis');
+      svgGroup.append('g')
+        .call(yAxis)
+        .attr('class', 'y-axis');
+    };
+    renderChart();
+  </script>
+</body>
+</html>
