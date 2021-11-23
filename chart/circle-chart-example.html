@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Circle</title>
+</head>
+<body>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script>
+    function getData() {
+      return [
+        { name: 'Vue', value: '81.25' }, 
+        { name: 'Svelte', value: '18.75' }
+      ].map(d => {
+        d.value = parseFloat(d.value);
+        return d;
+      })
+    }
+
+    async function makeChart() {
+      const data = getData();
+
+      const margin = { top: 30, right: 50, bottom: 30, left: 50 };
+      const width = 800 - margin.left - margin.right;
+      const height = 300 - margin.top - margin.bottom;
+
+      const body = d3.select('body');
+      const svg = body.append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .attr('viewBox', [ -width / 2, -height / 2, width, height]);
+
+      const arc = d3.arc()
+        .innerRadius(0)
+        .outerRadius(Math.min(width, height) / 2 - 1);
+      
+      const pie = d3.pie()
+        .value(d => d.value)(data); // 바로 데이터를 넣음.
+
+      const colorScale = d3.scaleOrdinal()
+        .domain(data.map(d => d.name))
+        .range(d3.schemeSet3);
+
+      svg.append('g')
+        .selectAll() 
+        .data(pie) // pie 배열의 데이터 포인트만큼
+        .join('path') // path를 넣고
+        .attr('fill', d => colorScale(d.data.name))
+        .attr('d', arc); // 호를 그려줄 수 있다.
+
+      const arcLabel = svg.append('g')
+        .attr('font-family', 'sans-serif')
+        .attr('font-size', 10)
+        .attr('text-anchor', 'middle')
+        .selectAll('text')
+        .data(pie)
+        .join('text')
+        .attr('transform', d => `translate(${arc.centroid(d)})`)
+      
+      arcLabel.append('tspan')
+        .attr('y', '-0.4em')
+        .attr('font-weight', 'bold')
+        .attr('fill-opacity', 0.7)
+        .text(d => d.data.name)
+      
+      arcLabel.append('tspan')
+        .attr('x', 0)
+        .attr('y', '0.7em')
+        .attr('fill-opacity', 0.7)
+        .text(d => d.data.value.toLocaleString() + '%');
+    }
+    makeChart()
+  </script>
+</body>
+</html>
