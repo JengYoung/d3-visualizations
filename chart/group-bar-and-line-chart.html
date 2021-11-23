@@ -7,6 +7,15 @@
   <title>Document</title>
 </head>
 <body>
+  <style>
+    .line-path {
+      fill: none;
+      stroke: gray;
+      stroke-width: 1.5;
+      stroke-linejoin: round;
+      stroke-linecap: round;
+    }
+  </style>
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script>
     async function getData() {
@@ -14,8 +23,30 @@
       const json = await d3.json('../dataset/key-sample.json');
       return json.sort((a, b) => a.year - b.year);
     }
+
+    function getAverage(data) {
+      const dataByYear = d3.group(data, d => d.year);
+      const averageData = [];
+
+      for (const [key, value] of dataByYear.entries()) {
+        const len = value.length;
+        const sum = value.reduce((acc, cur) => {
+          return acc + cur.value;
+        }, 0);
+
+        averageData.push({
+          year: key,
+          average: Math.floor(sum / len)
+        })
+        console.log(averageData)
+      }
+
+      return averageData;
+    }
+
     async function makeChart() {
       const data = await getData();
+      const averageData = await getAverage(data);
       const years = data.reduce((acc, cur) => {
         acc.push(cur.year);
         const s = new Set(acc)
@@ -50,12 +81,21 @@
         .domain([0, d3.max(data, d => d.value)])
         .range([height - margin.bottom, margin.top])
       
+      const yScale2 = d3.scaleLinear()
+        .domain([0, d3.max(averageData, d => d.average)])
+        .range([height - margin.bottom, margin.top])
+      
       const colorScale = d3.scaleOrdinal()
         .domain(names)
         .range(d3.schemePastel1);
       
       const xAxis = d3.axisBottom(xScale1).tickSizeOuter(0);
       const yAxis = d3.axisLeft(yScale).tickSizeOuter(0);
+      const yAxis2 = d3.axisRight(yScale2).tickSizeOuter(0);
+
+      const line = d3.line()
+        .x(d => xScale1(d.year) + xScale1.bandwidth() / 2)
+        .y(d => yScale2(d.average))
 
       const chart = svg.append('g')
         .attr('transform', `translate(${margin.left}, ${margin.top})`);
@@ -75,6 +115,10 @@
         .attr('width', xScale2.bandwidth())
         .attr('height', d => yScale(0) - yScale(d.value))
         .attr('fill', d => colorScale(d.name));
+      
+      chart.append('path')
+        .attr('class', 'line-path')
+        .attr('d', line(averageData));
 
       chart.append('g')
         .attr('transform', `translate(0, ${height - margin.bottom})`)
@@ -82,8 +126,28 @@
       
       chart.append('g')
         .attr('transform', `translate(${margin.left}, 0)`)
-        .call(yAxis);
-    
+        .call(yAxis)
+        .call(g => g.select('.domain').remove())
+        .call(g => g
+          .append('text')
+          .attr('y', 15)
+          .attr('fill', 'gray')
+          .attr('text-anchor', 'end')
+          .text('counts')
+        )
+      
+      chart.append('g')
+        .attr('transform', `translate(${width - margin.right}, 0)`)
+        .call(yAxis2)
+        .call(g => g.select('.domain').remove())
+        .call(g => g
+          .append('text')
+          .attr('x', margin.right)
+          .attr('y', 15)
+          .attr('fill', 'gray')
+          .attr('text-anchor', 'end')
+          .text('average')
+        )
     }
     makeChart();
   </script>
