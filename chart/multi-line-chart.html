@@ -7,6 +7,12 @@
             fill: none;
             stroke-width: 1.5;
           }
+          .axis-label {
+            fill: black;
+            font-size: 16px;
+            font-weight: bold;
+            text-anchor: middle;
+          }
         </style>
     </head>
     <body>
@@ -51,7 +57,7 @@
               .attr('width', width + margin.left + margin.right)
               .attr('height', height + margin.top + margin.bottom)
               .append('g')
-              .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+              .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
             const xScale = d3.scaleUtc()
               .domain(d3.extent(data.dates))
@@ -70,11 +76,22 @@
 
             svg.append('g')
               .attr('transform', `translate(0,${height - margin.bottom})`)
-              .call(xAxis);
+              .call(xAxis)
+              .append('text')
+              .attr('class', 'axis-label')
+              .text('년도')
+              .attr('x', width / 2)
+              .attr('y', 45);
 
             svg.append('g')
               .attr('transform', `translate(${margin.left},0)`)
-              .call(yAxis);
+              .call(yAxis)
+              .append('text')
+              .attr('class', 'axis-label')
+              .text('커밋 수')
+              .attr('transform', 'rotate(-90)')
+              .attr('x', -height / 2)
+              .attr('y', -30);
 
             const lineGroup = svg.append('g')
               .selectAll('g')
@@ -87,6 +104,22 @@
               .style('stroke', (d, i) => d3.schemeCategory10[i % 10])
               .style('opacity', 1)
 
+            lineGroup.append('g')
+              .attr('font-family', 'sans-serif')
+              .attr('font-size', 10)
+              .attr('text-anchor', 'middle')
+              .selectAll('.label-text')
+              .data(d => d.values)
+              .join('text')
+              .text(d => d.value)
+              .attr('dy', '0.35em')
+              .attr('x', d => xScale(d.date))
+              .attr('y', d => yScale(d.value))
+              .call(g => g.filter((d, i, data) => i === data.length - 1)
+                .append('tspan')
+                .attr('font-weight', 'bold')
+                .text(D => d.name)
+              )
           }
 
           makeChart();
