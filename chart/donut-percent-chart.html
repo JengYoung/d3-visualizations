@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Circle</title>
+</head>
+<body>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script>
+    function getData() {
+      return [
+        { name: 'Vue', value: '81.25' }, 
+        { name: 'Svelte', value: '18.75' }
+      ].map(d => {
+        d.value = parseFloat(d.value);
+        return d;
+      })
+    }
+
+    async function makeChart() {
+      const data = getData();
+
+      const margin = { top: 30, right: 50, bottom: 30, left: 50 };
+      const width = 800 - margin.left - margin.right;
+      const height = 300 - margin.top - margin.bottom;
+
+      const body = d3.select('body');
+
+      const div = body.append('div')
+        .style('width', `${width}px`)
+        .style('position', 'relative');
+
+      console.log("div", div)
+      const svg = body.append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .attr('viewBox', [ -width / 2, -height / 2, width, height]);
+
+      const radius = Math.min(width, height) / 2;
+      const arc = d3.arc()
+        .innerRadius(radius * 0.8)
+        .outerRadius(radius)
+        .cornerRadius(4)
+      
+      const pie = d3.pie()
+        .padAngle(0.02)
+        .value(d => d.value)(data);
+      
+      const colorScale = d3.scaleOrdinal()
+        .domain(data.map(d => d.name))
+        .range(d3.schemeSet3)
+      
+      svg.append('g')
+        .selectAll('path')
+        .data(pie)
+        .join('path')
+        .attr('fill', d => colorScale(d.data.name))
+        .attr('d', arc);
+
+      const key = 'Vue'
+      div.append('div')
+        .style('position', 'absolute')
+        .style('display', 'flex')
+        .style('align-items', 'center')
+        .style('text-align', 'center')
+        .style('font-size', '50px')
+        .style('font-weight', 'bold')
+        .style('width', `${width + margin.left + margin.right}px`)
+        .style('height', `${height + margin.top + margin.bottom}px`)
+        .style('color', colorScale(key))
+        .append('div')
+          .style('width', `${width + margin.left + margin.right}px`)
+          .text(d3.format('.0%')(data.find(d => d.name === key).value / 100));
+    }
+    makeChart()
+  </script>
+</body>
+</html>
