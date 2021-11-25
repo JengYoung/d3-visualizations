@@ -13,6 +13,11 @@
             font-weight: bold;
             text-anchor: middle;
           }
+          .grid-lines {
+            stroke: gray;
+            stroke-opacity: 0.2;
+            stroke-dasharray: 5.5;
+          }
         </style>
     </head>
     <body>
@@ -48,7 +53,7 @@
           async function makeChart() {
             const data = await getData();
 
-            const margin = { top: 10, right: 50, bottom: 30, left: 50};
+            const margin = { top: 30, right: 50, bottom: 30, left: 50};
             const width = 1000 - margin.left - margin.right;
             const height = 400 - margin.top - margin.bottom;
 
@@ -56,8 +61,6 @@
             const svg = body.append('svg')
               .attr('width', width + margin.left + margin.right)
               .attr('height', height + margin.top + margin.bottom)
-              .append('g')
-              .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
             const xScale = d3.scaleUtc()
               .domain(d3.extent(data.dates))
@@ -67,6 +70,10 @@
               .domain([0, d3.max(data.series, (s) => d3.max(s.values, (d) => d.value))])
               .range([height - margin.bottom, margin.top]);
 
+            const colorScale = d3.scaleOrdinal()
+              .domain(data.names)
+              .range(d3.schemeCategory10);
+
             const xAxis = d3.axisBottom(xScale);
             const yAxis = d3.axisLeft(yScale);
 
@@ -74,26 +81,38 @@
               .x(d => xScale(d.date))
               .y(d => yScale(d.value));
 
-            svg.append('g')
+            const chart = svg.append('g')
+              .attr('transform', `translate(${margin.left}, ${margin.top})`);
+            chart.append('g')
               .attr('transform', `translate(0,${height - margin.bottom})`)
               .call(xAxis)
-              .append('text')
+              .append('text')// x축 라벨 추가
               .attr('class', 'axis-label')
               .text('년도')
               .attr('x', width / 2)
-              .attr('y', 45);
+              .attr('y', 50);
 
-            svg.append('g')
+            chart.append('g')
               .attr('transform', `translate(${margin.left},0)`)
               .call(yAxis)
-              .append('text')
+              .append('text')// y축 라벨 추가
               .attr('class', 'axis-label')
               .text('커밋 수')
               .attr('transform', 'rotate(-90)')
               .attr('x', -height / 2)
-              .attr('y', -30);
+              .attr('y', -60);
 
-            const lineGroup = svg.append('g')
+            chart.append('g')
+              .attr('class', 'grid-lines')
+              .selectAll('line')
+              .data(yScale.ticks())
+              .join('line')
+              .attr('x1', margin.left)
+              .attr('x2', width - margin.right)
+              .attr('y1', yScale)
+              .attr('y2', yScale)
+            
+            const lineGroup = chart.append('g')
               .selectAll('g')
               .data(data.series)
               .join('g')
@@ -101,7 +120,7 @@
             lineGroup.append('path')
               .attr('d', d => line(d.values))
               .attr('class', 'line-path')
-              .style('stroke', (d, i) => d3.schemeCategory10[i % 10])
+              .style('stroke', d => colorScale(d.name))
               .style('opacity', 1)
 
             lineGroup.append('g')
@@ -118,8 +137,36 @@
               .call(g => g.filter((d, i, data) => i === data.length - 1)
                 .append('tspan')
                 .attr('font-weight', 'bold')
-                .text(D => d.name)
+                .text(d => d.name)
               )
+              .clone(true).lower()
+                .attr('class', 'text-cover')
+                .attr('fill', 'none')
+                .attr('stroke', 'white')
+                .attr('stroke-width', 6); // 흰색 커버
+
+            const legendGroup = svg.append('g')
+              .attr('transform', `translate(${margin.left}, 0)`)
+              .attr('text-anchor', 'start')
+              .attr('font-family', 'sans-serif')
+              .attr('font-size', 10)
+            
+            const legend = legendGroup.selectAll('.legend')
+              .data(data.names)
+              .join('g')
+              .attr('transform', (d, i) => `translate(${i * 90}, 0)`);
+            
+            legend.append('rect')
+              .attr('width', 20)
+              .attr('height', 20)
+              .attr('fill', colorScale)
+              .attr('fill-opacity', 0.8);
+
+            legend.append('text')
+              .attr('x', 23)
+              .attr('y', 9.5)
+              .attr('dy', '0.35em')
+              .text(d => d);
           }
 
           makeChart();
