@@ -3,6 +3,20 @@
     <head>
         <meta charset="utf-8">
         <style>
+          #header {
+            width: 1000px;
+            height: 50px;
+            margin-bottom: 100px;
+            background: black;
+            font-size: 36px;
+            color: white;
+            text-align: center;
+            font-weight: bold;
+            letter-spacing: -2px;
+          }
+          .select-box {
+            display: block;
+          }
           .line-path {
             fill: none;
             stroke-width: 1.5;
@@ -58,6 +72,14 @@
             const height = 400 - margin.top - margin.bottom;
 
             const body = d3.select('body');
+
+            const selectElement = body.append('select')
+              .attr('class', 'select-box')
+            selectElement.selectAll('option')
+              .data(['All', ...data.names])
+              .join('option')
+              .text(d => d);
+            
             const svg = body.append('svg')
               .attr('width', width + margin.left + margin.right)
               .attr('height', height + margin.top + margin.bottom)
@@ -145,28 +167,44 @@
                 .attr('stroke', 'white')
                 .attr('stroke-width', 6); // 흰색 커버
 
-            const legendGroup = svg.append('g')
-              .attr('transform', `translate(${margin.left}, 0)`)
-              .attr('text-anchor', 'start')
-              .attr('font-family', 'sans-serif')
-              .attr('font-size', 10)
+            // const legendGroup = svg.append('g')
+            //   .attr('transform', `translate(${margin.left}, 0)`)
+            //   .attr('text-anchor', 'start')
+            //   .attr('font-family', 'sans-serif')
+            //   .attr('font-size', 10)
             
-            const legend = legendGroup.selectAll('.legend')
-              .data(data.names)
-              .join('g')
-              .attr('transform', (d, i) => `translate(${i * 90}, 0)`);
+            // const legend = legendGroup.selectAll('.legend')
+            //   .data(data.names)
+            //   .join('g')
+            //   .attr('transform', (d, i) => `translate(${i * 90}, 0)`);
             
-            legend.append('rect')
-              .attr('width', 20)
-              .attr('height', 20)
-              .attr('fill', colorScale)
-              .attr('fill-opacity', 0.8);
+            // legend.append('rect')
+            //   .attr('width', 20)
+            //   .attr('height', 20)
+            //   .attr('fill', colorScale)
+            //   .attr('fill-opacity', 0.8);
 
-            legend.append('text')
-              .attr('x', 23)
-              .attr('y', 9.5)
-              .attr('dy', '0.35em')
-              .text(d => d);
+            // legend.append('text')
+            //   .attr('x', 23)
+            //   .attr('y', 9.5)
+            //   .attr('dy', '0.35em')
+            //   .text(d => d);
+
+            d3.select('.select-box').on('change', function(el, d) {
+              const selectedValue = d3.select('.select-box').property('value');
+              console.log(selectedValue)
+
+              lineGroup.select('.line-path')
+                .style('opacity', d => 
+                  selectedValue === 'All' || selectedValue === d.name ? 1 : 0
+                )
+                
+              lineGroup.selectAll('text')
+                .attr('fill-opacity', d => selectedValue === 'All' || selectedValue === d.name ? 1 : 0)
+
+              lineGroup.selectAll('.text-cover')
+                .attr('stroke', d => selectedValue === 'All' || selectedValue === d.name ? 'white' : 'none')
+            })
           }
 
           makeChart();
