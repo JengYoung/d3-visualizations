@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>scaleSequential Example</title>
+  </head>
+  <body>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script>
+      const body = d3.select('body');
+      const svg = body.append('svg').attr('width', 1000).attr('height', 2000);
+      const data = Array.from({ length: 10 }, (_, i) => i + 1);
+
+      const myColor1 = d3.scaleLinear().domain([1, 10]).range(['white', 'blue']);
+      svg
+        .selectAll('.firstrow')
+        .data(data)
+        .join('circle')
+        .attr('cx', (d, i) => 30 + i * 60)
+        .attr('cy', 50)
+        .attr('r', 19)
+        .attr('fill', myColor1);
+      const myColor2 = d3.scaleSequential().domain([1, 10]).interpolator(d3.interpolateRainbow);
+
+      svg
+        .selectAll('.secondrow')
+        .data(data)
+        .join('circle')
+        .attr('cx', (d, i) => 30 + i * 60)
+        .attr('cy', 150)
+        .attr('r', 19)
+        .attr('fill', myColor2);
+
+      const myColor3 = d3.scaleSequential().domain([1, 10]).interpolator(d3.interpolatePurples);
+
+      svg
+        .selectAll('.secondrow')
+        .data(data)
+        .join('circle')
+        .attr('cx', (d, i) => 30 + i * 60)
+        .attr('cy', 250)
+        .attr('r', 19)
+        .attr('fill', myColor3);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <button onclick="insertBox1()">Insert</button>
+    <div id="insertBox1">
+      <div class="box pink-box"></div>
+      <div class="box pink-box"></div>
+      <div class="box pink-box"></div>
+    </div>
+    <button onclick="insertBox2()">Insert</button>
+    <div id="insertBox2">
+      <div class="box pink-box"></div>
+      <div class="box pink-box"></div>
+      <div class="box pink-box"></div>
+    </div>
+    <button onclick="insertBoxClone()">Clone</button>
+    <div id="cloneBox">
+      <div class="box pink-box"></div>
+      <div class="box pink-box"></div>
+      <div class="box pink-box"></div>
+    </div>
+    <style>
+      .box {
+        width: 50px;
+        height: 50px;
+        margin: 5px;
+        display: inline-block;
+        color: white;
+        padding: 5px;
+      }
+      .pink-box {
+        background-color: pink;
+      }
+      .aqua-box {
+        background-color: lightblue;
+      }
+    </style>
+    <script>
+      /*
+      selection.insert
+      - selection.insert 메서드는 새로운 요소 삽입.
+      - 지정된 위치에 추가
+      - 지정 X -> 선택한 selection 자식으로 삽입.
+    */
+      function insertBox1() {
+        d3.select('#insertBox1').insert('div').classed('box aqua-box', true);
+      }
+      function insertBox2() {
+        d3.selectAll('#insertBox2 > div').insert('div').classed('box aqua-box', true);
+      }
+      function insertBoxClone() {
+        d3.selectAll('#cloneBox div').clone(false).classed('box aqua-box', true);
+      }
+    </script>
+  </body>
+</html>

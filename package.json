@@ -1,0 +1,54 @@
+{
+  "name": "dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "prepare": "husky install",
+    "prettier:all": "prettier --write **/*.{js,json,md,html,ts,tsx} --ignore-unknown --no-error-on-unmatched-pattern"
+  },
+  "dependencies": {
+    "d3": "^7.8.2",
+    "eslint": "8.35.0",
+    "eslint-config-next": "13.2.4",
+    "next": "13.2.4",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "typescript": "4.9.5"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^17.3.0",
+    "@commitlint/config-conventional": "^17.3.0",
+    "@trivago/prettier-plugin-sort-imports": "^4.0.0",
+    "@types/d3": "^7.4.0",
+    "@types/node": "18.15.0",
+    "@types/react": "18.0.28",
+    "@types/react-dom": "18.0.11",
+    "@typescript-eslint/eslint-plugin": "^5.46.1",
+    "@typescript-eslint/parser": "^5.46.1",
+    "commitizen": "^4.2.6",
+    "cz-customizable": "^7.0.0",
+    "eslint": "^8.29.0",
+    "eslint-config-google": "^0.14.0",
+    "eslint-config-next": "13.0.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-import-resolver-typescript": "^3.5.2",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-react": "7.31.11",
+    "husky": "^8.0.2",
+    "lint-staged": "^13.1.0",
+    "prettier": "latest"
+  },
+  "lint-staged": {
+    "*.{js,json,md,html}": [
+      "prettier --write **/*.{js,json,md,html} --ignore-unknown --no-error-on-unmatched-pattern"
+    ],
+    "*.{tsx,ts}": [
+      "prettier --write **/*.{tsx,ts} --ignore-unknown --no-error-on-unmatched-pattern",
+      "eslint \"**/*.{js,jsx,ts,tsx,cjs,mjs}\""
+    ]
+  }
+}

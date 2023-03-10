@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      #header {
+        width: 1000px;
+        height: 50px;
+        margin-bottom: 100px;
+        background: black;
+        font-size: 36px;
+        color: white;
+        text-align: center;
+        font-weight: bold;
+        letter-spacing: -2px;
+      }
+      .select-box {
+        display: block;
+      }
+      .line-path {
+        fill: none;
+        stroke-width: 1.5;
+      }
+      .axis-label {
+        fill: black;
+        font-size: 16px;
+        font-weight: bold;
+        text-anchor: middle;
+      }
+      .grid-lines {
+        stroke: gray;
+        stroke-opacity: 0.2;
+        stroke-dasharray: 5.5;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <div id="header">
+      <p>Watch Commit Log!</p>
+    </div>
+    <script>
+      async function getData() {
+        const nameMap = new Map();
+        const datesSet = new Set();
+        const series = [];
+
+        const csv = await d3.csv('../dataset/commit-log.csv');
+        csv.forEach(({ date, name, value }) => {
+          datesSet.add(new Date(date));
+          if (!nameMap.has(name)) {
+            nameMap.set(name, series.length);
+            series.push({ name, values: [] });
+          }
+          const d = series[nameMap.get(name)];
+          d.values.push({
+            name,
+            date: new Date(date),
+            value: parseInt(value),
+          });
+        });
+
+        return {
+          series,
+          dates: Array.from(datesSet),
+          names: Array.from(nameMap.keys()).sort(),
+        };
+      }
+      async function makeChart() {
+        const data = await getData();
+
+        const margin = { top: 30, right: 50, bottom: 30, left: 50 };
+        const width = 1000 - margin.left - margin.right;
+        const height = 400 - margin.top - margin.bottom;
+
+        const body = d3.select('body');
+
+        const selectElement = body.append('select').attr('class', 'select-box');
+        selectElement
+          .selectAll('option')
+          .data(['All', ...data.names])
+          .join('option')
+          .text((d) => d);
+
+        const svg = body
+          .append('svg')
+          .attr('width', width + margin.left + margin.right)
+          .attr('height', height + margin.top + margin.bottom);
+
+        const xScale = d3
+          .scaleUtc()
+          .domain(d3.extent(data.dates))
+          .range([margin.left, width - margin.right]);
+
+        const yScale = d3
+          .scaleLinear()
+          .domain([0, d3.max(data.series, (s) => d3.max(s.values, (d) => d.value))])
+          .range([height - margin.bottom, margin.top]);
+
+        const colorScale = d3.scaleOrdinal().domain(data.names).range(d3.schemeCategory10);
+
+        const xAxis = d3.axisBottom(xScale);
+        const yAxis = d3.axisLeft(yScale);
+
+        const line = d3
+          .line()
+          .x((d) => xScale(d.date))
+          .y((d) => yScale(d.value));
+
+        const chart = svg.append('g').attr('transform', `translate(${margin.left}, ${margin.top})`);
+        chart
+          .append('g')
+          .attr('transform', `translate(0,${height - margin.bottom})`)
+          .call(xAxis)
+          .append('text') // x축 라벨 추가
+          .attr('class', 'axis-label')
+          .text('년도')
+          .attr('x', width / 2)
+          .attr('y', 50);
+
+        chart
+          .append('g')
+          .attr('transform', `translate(${margin.left},0)`)
+          .call(yAxis)
+          .append('text') // y축 라벨 추가
+          .attr('class', 'axis-label')
+          .text('커밋 수')
+          .attr('transform', 'rotate(-90)')
+          .attr('x', -height / 2)
+          .attr('y', -60);
+
+        chart
+          .append('g')
+          .attr('class', 'grid-lines')
+          .selectAll('line')
+          .data(yScale.ticks())
+          .join('line')
+          .attr('x1', margin.left)
+          .attr('x2', width - margin.right)
+          .attr('y1', yScale)
+          .attr('y2', yScale);
+
+        const lineGroup = chart.append('g').selectAll('g').data(data.series).join('g');
+
+        lineGroup
+          .append('path')
+          .attr('d', (d) => line(d.values))
+          .attr('class', 'line-path')
+          .style('stroke', (d) => colorScale(d.name))
+          .style('opacity', 1);
+
+        lineGroup
+          .append('g')
+          .attr('font-family', 'sans-serif')
+          .attr('font-size', 10)
+          .attr('text-anchor', 'middle')
+          .selectAll('.label-text')
+          .data((d) => d.values)
+          .join('text')
+          .text((d) => d.value)
+          .attr('dy', '0.35em')
+          .attr('x', (d) => xScale(d.date))
+          .attr('y', (d) => yScale(d.value))
+          .call((g) =>
+            g
+              .filter((d, i, data) => i === data.length - 1)
+              .append('tspan')
+              .attr('font-weight', 'bold')
+              .text((d) => d.name)
+          )
+          .clone(true)
+          .lower()
+          .attr('class', 'text-cover')
+          .attr('fill', 'none')
+          .attr('stroke', 'white')
+          .attr('stroke-width', 6); // 흰색 커버
+
+        // const legendGroup = svg.append('g')
+        //   .attr('transform', `translate(${margin.left}, 0)`)
+        //   .attr('text-anchor', 'start')
+        //   .attr('font-family', 'sans-serif')
+        //   .attr('font-size', 10)
+
+        // const legend = legendGroup.selectAll('.legend')
+        //   .data(data.names)
+        //   .join('g')
+        //   .attr('transform', (d, i) => `translate(${i * 90}, 0)`);
+
+        // legend.append('rect')
+        //   .attr('width', 20)
+        //   .attr('height', 20)
+        //   .attr('fill', colorScale)
+        //   .attr('fill-opacity', 0.8);
+
+        // legend.append('text')
+        //   .attr('x', 23)
+        //   .attr('y', 9.5)
+        //   .attr('dy', '0.35em')
+        //   .text(d => d);
+
+        d3.select('.select-box').on('change', function (el, d) {
+          const selectedValue = d3.select('.select-box').property('value');
+          console.log(selectedValue);
+
+          lineGroup
+            .select('.line-path')
+            .style('opacity', (d) => (selectedValue === 'All' || selectedValue === d.name ? 1 : 0));
+
+          lineGroup
+            .selectAll('text')
+            .attr('fill-opacity', (d) =>
+              selectedValue === 'All' || selectedValue === d.name ? 1 : 0
+            );
+
+          lineGroup
+            .selectAll('.text-cover')
+            .attr('stroke', (d) =>
+              selectedValue === 'All' || selectedValue === d.name ? 'white' : 'none'
+            );
+        });
+      }
+
+      makeChart();
+    </script>
+  </body>
+</html>

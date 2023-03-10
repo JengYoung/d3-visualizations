@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+      .box {
+        width: 50px;
+        height: 50px;
+        margin: 5px;
+        display: inline-block;
+        color: white;
+        padding: 5px;
+      }
+      .pink-box {
+        background-color: pink;
+      }
+      .aqua-box {
+        background-color: lightblue;
+      }
+    </style>
+
+    <button onclick="addElemsWithCall()">Insert Elements</button>
+    <div id="callBoxes" class="container">
+      <div class="box pink-box"></div>
+      <div class="box pink-box"></div>
+      <div class="box pink-box"></div>
+    </div>
+    <script>
+      /*
+      # selection.call(f, [, arguments...])
+      - selection.call이 실행되면 인수로 전달된 function을 실행
+      - 여러 selection에 실행하는 일련의 처리가 있는 경우 유용
+      - 호출된 selection을 반환, 체이닝으로 사용 가능.
+      - 매개변수
+        - 첫 번째 매개변수: 함수 (required)
+        - , ...arguments: 함수에 해당 매개변수 값을 전달(optional)
+    */
+      function addElems(selection, n) {
+        let nodeList = selection.nodes();
+        for (let i = 0; i < nodeList.length; i += 1) {
+          for (let j = 0; j < n; j += 1) {
+            let newElem = d3.create('div').node();
+            newElem.className = 'box aqua-box';
+            nodeList[i].parentNode.insertBefore(newElem, nodeList[i]);
+          }
+        }
+      }
+
+      function addElemsWithCall() {
+        d3.selectAll('#callBoxes > div').call(addElems, 2);
+      }
+    </script>
+  </body>
+</html>

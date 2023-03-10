@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Line Example</title>
+    <style>
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 13px;
+      }
+      .line-path {
+        fill: steelblue;
+        stroke: steelblue;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script>
+      async function makeChart() {
+        const width = 475;
+        const height = 240;
+        const margin = { top: 20, right: 30, bottom: 30, left: 40 };
+
+        const data = await d3.csv('../dataset/aapl-bollinger.csv');
+        data.map((d) => {
+          d.date = new Date(d.date);
+          d.close = parseFloat(d.close);
+          d.lower = parseFloat(d.lower);
+          d.middle = parseFloat(d.middle);
+          d.upper = parseFloat(d.upper);
+          return d;
+        });
+
+        const body = d3.select('body');
+        const svg = body.append('svg').attr('width', width).attr('height', height);
+
+        // 차트 추가하기
+        const xScale = d3
+          .scaleUtc()
+          .domain(d3.extent(data, (d) => d.date))
+          .range([margin.left, width - margin.right]);
+
+        const yScale = d3
+          .scaleLinear()
+          .domain([0, d3.max(data, (d) => d.close)])
+          .range([height - margin.bottom, margin.top]);
+
+        // const line = d3.line()
+        //   .x(d => xScale(d.date))
+        //   .y(d => yScale(d.close));
+        const area = d3
+          .area()
+          .x((d) => xScale(d.date))
+          .y0(yScale(0))
+          .y1((d) => yScale(d.close));
+
+        svg.append('path').attr('class', 'line-path').attr('d', area(data));
+      }
+      makeChart();
+    </script>
+  </body>
+</html>

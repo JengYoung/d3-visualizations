@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script>
+      const getData = async () => {
+        const csvData = await d3.csv('../dataset/movie.csv');
+        console.log(csvData);
+
+        const tsvData = await d3.tsv('../dataset/movie.tsv');
+        console.log(tsvData);
+
+        const textData = await d3.text('../dataset/movie.csv');
+        console.log(textData);
+
+        const htmlData = await d3.html('../dataset/movie.html');
+        console.log(htmlData);
+
+        const xmlData = await d3.xml('../dataset/movie.xml');
+        console.log(xmlData);
+
+        const jsonData = await d3.json('../dataset/movie.json');
+        console.log(jsonData);
+
+        // const apiData = await d3.json([[API URL]]);
+      };
+      getData();
+    </script>
+  </body>
+</html>

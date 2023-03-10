@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sequential Legend Example</title>
+  </head>
+  <body>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script>
+      const width = 320;
+      const height = 44;
+      const margin = { top: 30, right: 0, bottom: 0, left: 20 };
+      const body = d3.select('body');
+
+      const svg = body
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom);
+
+      const data = Array.from(Array(100).keys());
+
+      const colorScale = d3.scaleSequential().domain([0, 99]).interpolator(d3.interpolateYlOrRd);
+
+      const xScale = d3
+        .scaleLinear()
+        .domain(colorScale.domain())
+        .range([margin.left, width - margin.right]);
+
+      const xAxis = d3
+        .axisBottom(xScale)
+        .tickSize(15)
+        .tickFormat((v) => `${v}ºF`)
+        .tickValues([25, 50, 75]);
+
+      const legendGroup = svg
+        .append('g')
+        .style('font-size', '0.8rem')
+        .style('font-family', 'sans-serif')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
+
+      const title = 'Temperate Legend Example';
+
+      const legendTitle = legendGroup
+        .append('text')
+        .attr('y', -8)
+        .attr('font-weight', 'bold')
+        .text(title);
+
+      const legend = legendGroup.append('g');
+      legend
+        .selectAll('rect')
+        .data(data)
+        .join('rect')
+        .attr('height', 10)
+        .attr('x', xScale)
+        .attr('width', ((width - margin.left - margin.right) / 100) * 1.2)
+        .attr('fill', colorScale);
+
+      legend.call(xAxis);
+    </script>
+  </body>
+</html>

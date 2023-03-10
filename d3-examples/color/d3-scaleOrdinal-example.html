@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script>
+      const body = d3.select('body');
+      const svg = body.append('svg').attr('width', 1000).attr('height', 1000);
+
+      const data = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+
+      const myColor1 = d3
+        .scaleOrdinal()
+        .domain(data)
+        .range([
+          'gold',
+          'blue',
+          'green',
+          'yellow',
+          'black',
+          'gray',
+          'darkgreen',
+          'pink',
+          'brown',
+          'slateblue',
+        ]);
+
+      svg
+        .selectAll('.firstrow')
+        .data(data)
+        .join('circle')
+        .attr('cx', (d, i) => 30 + i * 60)
+        .attr('cy', 50)
+        .attr('r', 19)
+        .attr('fill', myColor1);
+
+      const myColor2 = d3.scaleOrdinal().domain(data).range(d3.schemeSet3);
+      svg
+        .selectAll('.secondrow')
+        .data(data)
+        .join('circle')
+        .attr('cx', (d, i) => 30 + i * 60)
+        .attr('cy', 150)
+        .attr('r', 19)
+        .attr('fill', myColor2);
+    </script>
+  </body>
+</html>

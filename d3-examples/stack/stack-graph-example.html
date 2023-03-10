@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script>
+      async function makeChart() {
+        const width = 475;
+        const height = 240;
+        const margin = { top: 20, right: 30, bottom: 30, left: 40 };
+        const data = [
+          {
+            month: new Date(2018, 0, 1),
+            fruitSales: { apples: 10, bananas: 20, oranges: 15 },
+          },
+          {
+            month: new Date(2018, 1, 1),
+            fruitSales: { apples: 15, bananas: 15, oranges: 15 },
+          },
+          {
+            month: new Date(2018, 2, 1),
+            fruitSales: { apples: 20, bananas: 25, oranges: 15 },
+          },
+        ];
+        const fruits = ['apples', 'bananas', 'oranges'];
+
+        const body = d3.select('body');
+        const svg = body
+          .append('svg')
+          .attr('width', width + margin.left + margin.right)
+          .attr('height', height + margin.top + margin.bottom);
+
+        const stack = d3
+          .stack()
+          .keys(fruits)
+          .value((obj, key) => obj.fruitSales[key]);
+
+        const series = stack(data);
+
+        const xScale = d3
+          .scaleTime()
+          .domain([data[0].month, data[2].month])
+          .range([margin.left, width - margin.right]);
+
+        const yScale = d3
+          .scaleLinear()
+          .domain([0, 60])
+          .range([height - margin.bottom, margin.top]);
+
+        const colorScale = d3.scaleOrdinal().domain(fruits).range(['red', 'yellow', 'orange']);
+
+        console.log(series);
+        const area = d3
+          .area()
+          .x((d) => {
+            console.log(d);
+            return xScale(d.data.month);
+          })
+          .y0((d) => yScale(d[0]))
+          .y1((d) => yScale(d[1]));
+
+        const xAxis = d3.axisBottom(xScale);
+        const yAxis = d3.axisLeft(yScale);
+
+        svg
+          .append('g')
+          .attr('transform', `translate(0, ${height - margin.bottom})`)
+          .call(xAxis);
+
+        svg.append('g').attr('transform', `translate(${margin.left}, 0)`).call(yAxis);
+
+        svg
+          .append('g')
+          .selectAll('path')
+          .data(series)
+          .join('path')
+          .attr('d', area)
+          .attr('fill', (d) => colorScale(d.key));
+      }
+      makeChart();
+    </script>
+  </body>
+</html>
