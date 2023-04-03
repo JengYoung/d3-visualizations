@@ -54,7 +54,28 @@ export default function PieChart({ width, height, data, color }: IPieChartProps)
       .data(pie) // pie 배열의 데이터 포인트만큼
       .join('path') // path를 넣고
       .attr('fill', (d) => colorScale(d.data.name)) // colorScale에 해당하는 색 줌.
-      .attr('d', arc); // 호를 그려줄 수 있다.
+      .attr('d', arc)
+      .on('mouseover', function () {
+        if (!this) return;
+
+        const datum = d3.select<SVGPathElement, d3.PieArcDatum<IRefinedChartData>>(this).datum();
+
+        d3.select(this).transition().duration(300).attr('fill', 'orange');
+
+        activeLabels(datum);
+      })
+      .on('mouseout', function () {
+        if (!this) return;
+
+        const datum = d3.select<SVGPathElement, d3.PieArcDatum<IRefinedChartData>>(this).datum();
+
+        d3.select<SVGPathElement, d3.PieArcDatum<IRefinedChartData>>(this)
+          .transition()
+          .duration(300)
+          .attr('fill', (d) => colorScale(d.data.name));
+
+        inactiveLabels(datum);
+      });
 
     const arcLabel = svg
       .append('g')
@@ -66,20 +87,43 @@ export default function PieChart({ width, height, data, color }: IPieChartProps)
       .join('text')
       .attr('transform', (d) => `translate(${arc.centroid(d)})`);
 
-    arcLabel
+    const names = arcLabel
       .append('tspan')
+      .attr('x', 0)
       .attr('y', '-0.5rem')
       .attr('font-size', '1rem')
       .attr('font-weight', 'bold')
       .attr('fill-opacity', 0.97)
       .text((d) => d.data.name);
 
-    arcLabel
+    const values = arcLabel
       .append('tspan')
       .attr('x', 0)
-      .attr('y', '0.7em')
+      .attr('y', '0.5em')
+      .attr('font-size', '0.75rem')
       .attr('fill-opacity', 0.7)
       .text((d) => d.data.value.toLocaleString() + '%');
-  });
+
+    function activeLabels(datum: d3.PieArcDatum<IRefinedChartData>) {
+      [names, values].forEach((selections) => {
+        selections.each(function (d) {
+          if (datum.data.name === d.data.name) {
+            d3.select(this).attr('fill', 'white');
+          }
+        });
+      });
+    }
+
+    function inactiveLabels(datum: d3.PieArcDatum<IRefinedChartData>) {
+      [names, values].forEach((selections) => {
+        selections.each(function (d) {
+          if (datum.data.name === d.data.name) {
+            d3.select(this).attr('fill', 'black');
+          }
+        });
+      });
+    }
+  }, [color, height, width, radius, refinedData]);
+
   return <svg ref={pieChartRef}></svg>;
 }

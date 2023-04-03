@@ -17,7 +17,7 @@ export default function Home() {
       <main className={styles.main}>
         <PieChart
           data={[
-            { name: 'svelte', value: '10.25' },
+            { name: 'svelte', value: '1.25' },
             { name: 'vue', value: '25' },
             { name: 'react', value: '64.75' },
           ]}
