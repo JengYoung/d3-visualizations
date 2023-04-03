@@ -1,9 +1,17 @@
 // import { Inter } from 'next/font/google';
 import Head from 'next/head';
 
+import BarChart from '@/components/BarChart';
 import styles from '@/styles/Home.module.css';
 
 import PieChart from '../components/PieChart';
+
+const RAW_FAKE_BAR_DATA = Array.from({ length: 26 }, (_, i) => {
+  return {
+    name: String.fromCharCode(i + 65),
+    value: Math.random() * 100,
+  };
+});
 
 export default function Home() {
   return (
@@ -24,6 +32,14 @@ export default function Home() {
           width={300}
           height={300}
           color={['#F5FEFA', '#ADFDFB', '#83F3FA', '#63E2F5', '#32C9EF']}
+        />
+
+        <BarChart
+          width={800}
+          height={600}
+          data={RAW_FAKE_BAR_DATA}
+          margin={{ top: 10, right: 50, bottom: 30, left: 50 }}
+          color="#752bed"
         />
       </main>
     </>
