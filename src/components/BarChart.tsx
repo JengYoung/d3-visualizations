@@ -65,7 +65,13 @@ export default function BarChart({ margin, width, height, data, color }: IBarCha
       .attr('x', (d) => xScale(d.name) ?? 0)
       .attr('y', (d) => yScale(d.value))
       .attr('width', xScale.bandwidth())
-      .attr('height', (d) => yScale(0) - yScale(d.value));
+      .attr('height', (d) => yScale(0) - yScale(d.value))
+      .on('mouseover', function () {
+        d3.select(this).attr('fill', 'orange');
+      })
+      .on('mouseout', function () {
+        d3.select(this).attr('fill', color);
+      });
   }, [data, width, height, margin, color]);
 
   return <svg ref={barChartRef}></svg>;
