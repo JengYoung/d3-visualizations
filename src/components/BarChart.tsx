@@ -14,6 +14,8 @@ export default function BarChart({ margin, width, height, data, color }: IBarCha
   const barChartRef = useRef(null);
 
   useEffect(() => {
+    const ref = barChartRef.current;
+
     const names: string[] = [
       ...data.reduce((acc, cur) => {
         acc.add(cur.name);
@@ -23,10 +25,16 @@ export default function BarChart({ margin, width, height, data, color }: IBarCha
     ];
 
     const svg = d3
-      .select(barChartRef.current)
+      .select(ref)
+      .append('svg')
       .attr('width', width + (margin?.left ?? 0) + (margin?.right ?? 0))
       .attr('height', height + (margin?.top ?? 0) + (margin?.bottom ?? 0));
-    // .attr("viewBox", [0, 0, width, height])
+
+    const tooltip = d3
+      .select(barChartRef.current)
+      .append('div')
+      .attr('class', 'tooltip')
+      .style('opacity', 1);
 
     const xScale = d3
       .scaleBand()
@@ -58,7 +66,7 @@ export default function BarChart({ margin, width, height, data, color }: IBarCha
 
     chart
       .append('g')
-      .selectAll('rect')
+      .selectAll<SVGRectElement, BarValue>('rect')
       .data(data)
       .join('rect')
       .attr('fill', color)
@@ -66,13 +74,69 @@ export default function BarChart({ margin, width, height, data, color }: IBarCha
       .attr('y', (d) => yScale(d.value))
       .attr('width', xScale.bandwidth())
       .attr('height', (d) => yScale(0) - yScale(d.value))
-      .on('mouseover', function () {
-        d3.select(this).attr('fill', 'orange');
+      .on('mouseover', function (e) {
+        const bar = d3.select<SVGRectElement, BarValue>(this);
+
+        bar.attr('fill', 'orange');
+
+        const { name, value } = bar.datum();
+
+        tooltip
+          .html(
+            `
+          <p class="tooltip__header"  style="font-weight: 700; margin-bottom: 8px;">${name}</p>
+          <p>${value}</p>
+        `
+          )
+          .style('opacity', 1)
+          .style('z-index', 1)
+          .style('position', 'absolute')
+          .style('background', 'white')
+          .style('width', '200px')
+          .style('height', '90px')
+          .style('border-radius', '20px')
+          .style('color', '#111111')
+          .style('padding', '20px')
+          .style('top', e.pageY - 10 + 'px')
+          .style('left', e.pageX + 10 + 'px')
+          .style('font-size', '16px')
+          .style('word-break', 'break-all');
       })
-      .on('mouseout', function () {
+      .on('mouseout', function (e) {
         d3.select(this).attr('fill', color);
+
+        const bar = d3.select<SVGRectElement, BarValue>(this);
+        const { name, value } = bar.datum();
+
+        tooltip
+          .html(
+            `
+            <div class="tooltip">
+              <p class="tooltip__header" style="font-weight: 700;">${name}</p>
+              <p>${value}</p>
+            </div>
+          `
+          )
+          .style('opacity', 0)
+          .style('z-index', -1)
+          .style('position', 'absolute')
+          .style('background', 'white')
+          .style('width', '200px')
+          .style('height', '100px')
+          .style('border-radius', '20px')
+          .style('color', '#111111')
+          .style('padding', '20px')
+          .style('top', e.pageY - 10 + 'px')
+          .style('left', e.pageX + 10 + 'px')
+          .style('font-size', '16px')
+          .style('word-break', 'break-all');
       });
+
+    return () => {
+      d3.select(ref).selectAll('svg').remove();
+      d3.select(ref).selectAll('.tooltip').remove();
+    };
   }, [data, width, height, margin, color]);
 
-  return <svg ref={barChartRef}></svg>;
+  return <div ref={barChartRef} />;
 }
