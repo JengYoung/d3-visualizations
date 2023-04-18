@@ -3,6 +3,12 @@ export interface IChartSVG {
   height: number;
 }
 
+export interface IBaseData {
+  name: string;
+  /* eslint-disable-next-line */
+  value: any;
+}
+
 export interface IMargin {
   top: number;
   right: number;

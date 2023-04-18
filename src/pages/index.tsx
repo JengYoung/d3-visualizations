@@ -41,6 +41,21 @@ export default function Home() {
           margin={{ top: 10, right: 50, bottom: 30, left: 50 }}
           color="#752bed"
         />
+
+        <div
+          style={{
+            width: '100px',
+            height: '50px',
+            background: 'white',
+            paddingBottom: '10px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'black',
+          }}
+        >
+          <span>글자</span>
+        </div>
       </main>
     </>
   );

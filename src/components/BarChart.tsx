@@ -84,9 +84,9 @@ export default function BarChart({ margin, width, height, data, color }: IBarCha
         tooltip
           .html(
             `
-          <p class="tooltip__header"  style="font-weight: 700; margin-bottom: 8px;">${name}</p>
-          <p>${value}</p>
-        `
+              <p class="tooltip__header"  style="font-weight: 700; margin-bottom: 8px;">${name}</p>
+              <p>${value}</p>
+            `
           )
           .style('opacity', 1)
           .style('z-index', 1)
@@ -111,11 +111,11 @@ export default function BarChart({ margin, width, height, data, color }: IBarCha
         tooltip
           .html(
             `
-            <div class="tooltip">
-              <p class="tooltip__header" style="font-weight: 700;">${name}</p>
-              <p>${value}</p>
-            </div>
-          `
+              <div class="tooltip">
+                <p class="tooltip__header" style="font-weight: 700;">${name}</p>
+                <p>${value}</p>
+              </div>
+            `
           )
           .style('opacity', 0)
           .style('z-index', -1)
