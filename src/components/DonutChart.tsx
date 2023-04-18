@@ -85,7 +85,11 @@ export default function DonutChart({
       .append('div')
       .style('width', `${svgWidth}px`)
       .text(d3.format(format)((data.find((d) => d.name === key) as IBaseData).value / 100));
+
+    return () => {
+      d3.select(ref).select('svg').remove();
+    };
   }, [key, colors, width, height, margin, data, format, padAngle]);
 
-  return <div ref={donutChartRef}>DonutChart</div>;
+  return <div ref={donutChartRef} />;
 }

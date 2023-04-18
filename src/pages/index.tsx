@@ -2,6 +2,7 @@
 import Head from 'next/head';
 
 import BarChart from '@/components/BarChart';
+import DonutChart from '@/components/DonutChart';
 import styles from '@/styles/Home.module.css';
 
 import PieChart from '../components/PieChart';
@@ -12,6 +13,11 @@ const RAW_FAKE_BAR_DATA = Array.from({ length: 26 }, (_, i) => {
     value: Math.random() * 100,
   };
 });
+
+const DONUT_DATA = [
+  { name: 'Vue', value: '81.25' },
+  { name: 'Svelte', value: '18.75' },
+];
 
 export default function Home() {
   return (
@@ -42,20 +48,15 @@ export default function Home() {
           color="#752bed"
         />
 
-        <div
-          style={{
-            width: '100px',
-            height: '50px',
-            background: 'white',
-            paddingBottom: '10px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'black',
-          }}
-        >
-          <span>글자</span>
-        </div>
+        <DonutChart
+          margin={{ top: 30, right: 50, bottom: 30, left: 50 }}
+          width={800}
+          height={640}
+          data={DONUT_DATA}
+          format=".2%"
+          colors={['#53a967', '#ff5900']}
+          padAngle={0.02}
+        />
       </main>
     </>
   );
